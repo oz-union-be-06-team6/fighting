@@ -30,10 +30,6 @@ class ImageStatus(Enum):
     main = "main"
     sub = "sub"
 
-class HormoneType(Enum):
-    estrogen = "estrogen"
-    testosterone = "testosterone"
-
 
 # 🔹 사용자 정보
 class User(CommonModel):
@@ -74,11 +70,7 @@ class Choice(CommonModel):
     sqe = db.Column(db.Integer, nullable=False)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
 
-    # 🔥 핵심: 선택지에 성향 점수 추가
-    score_type = db.Column(db.Enum(HormoneType), nullable=False)   # estrogen / testosterone
-    score_value = db.Column(db.Integer, nullable=False)            # 보통 1 or 2
 
-    answers = db.relationship("Answer", backref="choice", lazy=True)
 
 
 # 🔹 사용자의 답변 기록
