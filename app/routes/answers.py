@@ -1,27 +1,30 @@
+# answers.py
 
-from flask import request, Blueprint, jsonify
+import json
+import os
 
-from app.models import Answer
-from config import db
+ANSWERS_FILE = "answers.json"
 
-answers_blp = Blueprint("answers", __name__)
+def load_answers():
+    if not os.path.exists(ANSWERS_FILE):
+        return []
+    with open(ANSWERS_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
 
+def save_answers(answers):
+    with open(ANSWERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(answers, f, ensure_ascii=False, indent=2)
 
-@answers_blp.route("/submit", methods=["POST"])
-def submit_answer():
-    if request.method == "POST":
-        try:
-            for data in request.get_json():
-                answer = Answer(
-                    user_id=data["user_id"],
-                    choice_id=data["choice_id"],
-                )
-                db.session.add(answer)
-            db.session.commit()
-            user_id = request.get_json()[0]["user_id"]
-            return jsonify(
-                {"message": f"User: {user_id}'s answers Success Create"}
-            ), 201
+def store_answer(user_id, question_id, answer):
+    answers = load_answers()
+    response = {
+        "user_id": user_id,
+        "question_id": question_id,
+        "answer": answer
+    }
+    answers.append(response)
+    save_answers(answers)
 
-        except KeyError as e:
-            return jsonify({"message": f"Missing required field: {str(e)}"}), 400
+def get_user_answers(user_id):
+    answers = load_answers()
+    return [a for a in answers if a["user_id"] == user_id]
